@@ -1,40 +1,60 @@
 use serde::Deserialize;
 
+#[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 pub struct XmlRequestText {
-    pub to_user_name: String,
-    pub from_user_name: String,
-    pub create_time: u64,
-    pub msg_type: String,
-    pub content: Option<String>,
-    pub msg_id: u64,
-    pub msg_data_id: Option<String>,
-    pub idx: Option<String>,
+    pub ToUserName: String,
+    pub FromUserName: String,
+    pub CreateTime: u64,
+    pub MsgType: String,
+    pub Content: Option<String>,
+    pub MsgId: u64,
+    pub MsgDataId: Option<String>,
+    pub Idx: Option<String>,
 }
 
+#[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
-struct XmlRequestImage {
-    to_user_name: String,
-    from_user_name: String,
-    create_time: u64,
-    msg_type: String,
-    pic_url: Option<String>,
-    media_id: Option<String>,
-    msg_id: u64,
-    msg_data_id: Option<String>,
-    idx: Option<String>,
+pub struct XmlRequestImage {
+    pub ToUserName: String,
+    pub FromUserName: String,
+    pub CreateTime: u64,
+    pub MsgType: String,
+    pub PicUrl: Option<String>,
+    pub MediaId: Option<String>,
+    pub MsgId: u64,
+    pub MsgDataId: Option<String>,
+    pub Idx: Option<String>,
 }
 
+#[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
-struct XmlRequestVoice {
-    to_user_name: String,
-    from_user_name: String,
-    create_time: u64,
-    msg_type: String,
-    media_id: Option<String>,
-    format: Option<String>,
-    msg_id: u64,
-    msg_data_id: Option<String>,
-    idx: Option<String>,
-    media_id16k: Option<String>,
+pub struct XmlRequestVoice {
+    pub ToUserName: String,
+    pub FromUserName: String,
+    pub CreateTime: u64,
+    pub MsgType: String,
+    pub MediaId: Option<String>,
+    pub Format: Option<String>,
+    pub MsgId: u64,
+    pub MsgDataId: Option<String>,
+    pub Idx: Option<String>,
+    pub MediaId16K: Option<String>,
+}
+
+// <xml>
+// <ToUserName><![CDATA[toUser]]></ToUserName>
+// <FromUserName><![CDATA[fromUser]]></FromUserName>
+// <CreateTime>12345678</CreateTime>
+// <MsgType><![CDATA[text]]></MsgType>
+// <Content><![CDATA[你好]]></Content>
+// </xml>
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct XmlReplyText {
+    pub ToUserName: String,
+    pub FromUserName: String,
+    pub CreateTime: u64,
+    pub MsgType: String,
+    pub Content: String,
 }
