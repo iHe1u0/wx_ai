@@ -48,7 +48,9 @@ async fn handle_msg(body: String) -> impl Responder {
     let parsed_voice: Result<XmlRequestVoice, _> = from_str(&body);
 
     if let Ok(parsed) = parsed_text {
-        handle_text(&parsed);
+        let reply = handle_text(&parsed);
+        debug!("{:?}", reply);
+        return HttpResponse::Ok().body(std::string::String::from(reply));
     } else if let Ok(parsed) = parsed_image {
     } else if let Ok(parsed) = parsed_voice {
     } else {

@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
@@ -42,13 +43,6 @@ pub struct XmlRequestVoice {
     pub MediaId16K: Option<String>,
 }
 
-// <xml>
-// <ToUserName><![CDATA[toUser]]></ToUserName>
-// <FromUserName><![CDATA[fromUser]]></FromUserName>
-// <CreateTime>12345678</CreateTime>
-// <MsgType><![CDATA[text]]></MsgType>
-// <Content><![CDATA[你好]]></Content>
-// </xml>
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 pub struct XmlReplyText {
@@ -57,4 +51,47 @@ pub struct XmlReplyText {
     pub CreateTime: u64,
     pub MsgType: String,
     pub Content: String,
+}
+
+impl XmlReplyText {
+    pub fn new(from: &str, to: &str, msg: &str) -> Self {
+        let build_cdata = |s: &str| Self::build_cdata_string(s); // 闭包来减少重复调用
+        XmlReplyText {
+            ToUserName: build_cdata(to),
+            FromUserName: build_cdata(from),
+            CreateTime: Self::get_timestamp(),
+            MsgType: build_cdata("text"),
+            Content: build_cdata(msg),
+        }
+    }
+
+    /// Custom [Self::to_string] for wx
+    pub fn to_string(&self) -> String {
+        let xml = format!(
+            r#"<xml>
+            <ToUserName>{}</ToUserName>
+            <FromUserName>{}</FromUserName>
+            <CreateTime>{}</CreateTime>
+            <MsgType><![CDATA[text]]></MsgType>
+            <Content>{}</Content>
+            </xml>"#,
+            self.ToUserName, self.FromUserName, self.CreateTime, self.Content
+        );
+        xml.lines()
+            .map(|line| line.trim_start())
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    fn build_cdata_string(s: &str) -> String {
+        format!("<![CDATA[{}]]>", s)
+    }
+
+    /// Return timestamp
+    fn get_timestamp() -> u64 {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|dur| dur.as_secs())
+            .unwrap_or(0)
+    }
 }
