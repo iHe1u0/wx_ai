@@ -1,6 +1,6 @@
+use crate::env_handle::env::get_env;
 use actix_web::web::Query;
 use actix_web::{HttpResponse, Responder};
-use dotenv_codegen::dotenv;
 use log::debug;
 use serde::Deserialize;
 use sha1::{Digest, Sha1};
@@ -13,8 +13,6 @@ pub struct QueryParams {
     echostr: String,
 }
 
-const TOKEN: &str = dotenv!("TOKEN");
-
 pub async fn wechat_verify(query: Query<QueryParams>) -> impl Responder {
     if check_signature(&query.signature, &query.timestamp, &query.nonce) {
         HttpResponse::Ok().body(query.echostr.clone()) // 验证通过返回 echo str
@@ -24,7 +22,11 @@ pub async fn wechat_verify(query: Query<QueryParams>) -> impl Responder {
 }
 
 fn check_signature(signature: &str, timestamp: &str, nonce: &str) -> bool {
-    let mut tmp_arr = vec![TOKEN.to_string(), timestamp.to_string(), nonce.to_string()];
+    let mut tmp_arr = vec![
+        get_env("TOKEN", ""),
+        timestamp.to_string(),
+        nonce.to_string(),
+    ];
     tmp_arr.sort(); // 字典序排序
     let tmp_str = tmp_arr.concat();
 

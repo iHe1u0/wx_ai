@@ -7,11 +7,14 @@ edition = "2024"
 actix-web = "4.9.0"
 chrono = "0.4.39"
 crypto = "0.5.1"
+dotenv = "0.15.0"
 dotenv_codegen = "0.15.0"
 dotenvy = "0.15.7"
 env_logger = "0.11.6"
 hex = "0.4.3"
+lazy_static = "1.5.0"
 log = { version = "0.4.26", features = [] }
+reqwest = { version = "0.12.12", features = ["json"] }
 serde = { version = "1.0.218", features = ["derive"] }
 serde-xml-rs = "0.6.0"
 serde_json = "1.0.139"
