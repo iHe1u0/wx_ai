@@ -1,23 +1,23 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[allow(non_snake_case, unused)]
+#[derive(Deserialize)]
 pub struct XmlRequestText {
     pub ToUserName: String,
     pub FromUserName: String,
-    pub CreateTime: u64,
-    pub MsgType: String,
+    CreateTime: u64,
+    MsgType: String,
     pub Content: Option<String>,
-    pub MsgId: u64,
-    pub MsgDataId: Option<String>,
-    pub Idx: Option<String>,
+    MsgId: u64,
+    MsgDataId: Option<String>,
+    Idx: Option<String>,
 }
 
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[allow(non_snake_case, unused)]
+#[derive(Deserialize)]
 pub struct XmlRequestImage {
-    pub ToUserName: String,
+    ToUserName: String,
     pub FromUserName: String,
     pub CreateTime: u64,
     pub MsgType: String,
@@ -28,8 +28,8 @@ pub struct XmlRequestImage {
     pub Idx: Option<String>,
 }
 
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[allow(non_snake_case, unused)]
+#[derive(Deserialize)]
 pub struct XmlRequestVoice {
     pub ToUserName: String,
     pub FromUserName: String,
@@ -43,13 +43,13 @@ pub struct XmlRequestVoice {
     pub MediaId16K: Option<String>,
 }
 
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[allow(non_snake_case, unused)]
+#[derive(Deserialize)]
 pub struct XmlReplyText {
     pub ToUserName: String,
     pub FromUserName: String,
     pub CreateTime: u64,
-    pub MsgType: String,
+    MsgType: String,
     pub Content: String,
 }
 
@@ -93,5 +93,38 @@ impl XmlReplyText {
             .duration_since(UNIX_EPOCH)
             .map(|dur| dur.as_secs())
             .unwrap_or(0)
+    }
+}
+
+/// Struct for proactively sending message
+#[allow(non_snake_case, unused)]
+#[derive(Serialize, Deserialize)]
+struct JsonRequestText {
+    content: String,
+}
+
+#[allow(non_snake_case, unused)]
+#[derive(Serialize, Deserialize)]
+pub struct JsonRequestData {
+    touser: String,
+    msgtype: String,
+    text: JsonRequestText,
+}
+
+impl JsonRequestText {
+    fn new(text: &str) -> Self {
+        JsonRequestText {
+            content: String::from(text),
+        }
+    }
+}
+
+impl JsonRequestData {
+    pub(crate) fn new(touser: &str, msgtype: &str, text: &str) -> Self {
+        JsonRequestData {
+            touser: touser.to_string(),
+            msgtype: msgtype.to_string(),
+            text: JsonRequestText::new(text),
+        }
     }
 }

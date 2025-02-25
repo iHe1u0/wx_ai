@@ -1,8 +1,8 @@
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use log::{debug, error};
 
-use crate::ai_handler::text_handler::handle_text;
-use crate::wx_data::msg_struct::{XmlRequestImage, XmlRequestText, XmlRequestVoice};
+use crate::ai_handler::text_handler::send_message;
+use crate::wx_data::msg_struct::{XmlReplyText, XmlRequestImage, XmlRequestText, XmlRequestVoice};
 use chrono::Local;
 use env_logger::Env;
 use log::{info, LevelFilter};
@@ -36,7 +36,6 @@ pub fn init_logger() {
 }
 
 async fn index() -> impl Responder {
-    let now = Local::now();
     HttpResponse::Ok().body("Hello World!")
 }
 
@@ -47,13 +46,30 @@ async fn handle_msg(body: String) -> impl Responder {
     let parsed_voice: Result<XmlRequestVoice, _> = from_str(&body);
 
     if let Ok(parsed) = parsed_text {
-        let reply = handle_text(&parsed).await;
-        return HttpResponse::Ok().body(std::string::String::from(reply));
+        // WeChat has a limited time for reply message(5 seconds)
+        // So start a new thread to post a message
+        // And return empty body message in case error
+        // for more information: https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Passive_user_reply_message.html
+
+        // let reply = handle_text(&parsed).await;
+        // return HttpResponse::Ok().body(std::string::String::from(reply));
+        let user = parsed.FromUserName;
+        let msg = parsed.Content;
+        let me = parsed.ToUserName;
+        if msg.is_none() {
+            let error_msg = XmlReplyText::new(me.as_str(), user.as_str(), "消息为空？");
+            return HttpResponse::BadRequest().body(error_msg.to_string());
+        };
+        tokio::spawn(async move {
+            let _ = send_message(user.as_str(), msg.unwrap().as_str()).await;
+        });
+        return HttpResponse::Ok().body("");
     } else if let Ok(_parsed) = parsed_image {
     } else if let Ok(_parsed) = parsed_voice {
     } else {
         error!("Failed to parse body: {:?}", body);
-        return HttpResponse::BadRequest().body("暂不支持的消息类型");
+        // let error_msg = XmlReplyText::new(me.as_str(), user.as_str(), "暂不支持的消息类型");
+        return HttpResponse::BadRequest().body("Failed to parse body");
     }
 
     HttpResponse::Ok().body("Hey there!")

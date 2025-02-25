@@ -16,25 +16,38 @@ use std::error::Error;
 /// - `Ok(ModelList)` if the request and JSON parsing are successful.
 /// - `Err(Box<dyn std::error::Error>)` if there is any failure during the HTTP request or parsing.
 pub async fn get_models() -> Result<ModelList, Box<dyn Error>> {
-    let api_url = get_env("OPENAI_HOST", "https://api.openai.com");
+    let option_api_url = get_env("OpenAiHost", "https://api.openai.com");
+    // Check api_url
+    let api_url = match option_api_url {
+        Some(url) => url,
+        None => return Err("OpenAiHost is not set".into()),
+    };
+
     let models_url = format!("{}/v1/models", api_url);
-
     let models: ModelList = reqwest::get(models_url).await?.json().await?;
-
     Ok(models)
 }
 
+#[allow(unused)]
 pub async fn get_reply(
     model: &str,
     messages: Vec<RequestMessage>,
     temperature: Option<f32>,
 ) -> Result<String, Box<dyn Error>> {
-    let api_url = get_env("OPENAI_HOST", "https://api.openai.com");
+    let option_api_url = get_env("OpenAiHost", "https://api.openai.com");
+    let api_url = match option_api_url {
+        Some(url) => url,
+        None => return Err("OpenAiHost is not set".into()),
+    };
     let chat_url = format!("{}/v1/chat/completions", api_url);
-    let client = CLIENT.lock().unwrap();
-
+    let client = CLIENT.lock().await.clone();
+    let option_model_name = get_env("ModelName", "");
+    let model_name = match option_model_name {
+        Some(url) => url,
+        None => return Err("ModelName is not set".into()),
+    };
     let request_body = RequestBody {
-        model: model.to_string(),
+        model: model_name,
         messages,
         temperature: temperature.unwrap_or(0.7),
     };

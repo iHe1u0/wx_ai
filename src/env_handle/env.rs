@@ -1,7 +1,8 @@
 use std::str::FromStr;
 
-pub fn get_env<T: ToString>(key: &str, default_value: T) -> String {
-    dotenv::var(key).unwrap_or(default_value.to_string())
+pub fn get_env<T: ToString>(key: &str, default_value: T) -> Option<String> {
+    let value = dotenv::var(key).unwrap_or(default_value.to_string());
+    if value.is_empty() { None } else { Some(value) }
 }
 
 #[allow(dead_code)]

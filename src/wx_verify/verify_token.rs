@@ -23,7 +23,7 @@ pub async fn wechat_verify(query: Query<QueryParams>) -> impl Responder {
 
 fn check_signature(signature: &str, timestamp: &str, nonce: &str) -> bool {
     let mut tmp_arr = vec![
-        get_env("TOKEN", ""),
+        get_env("Token", "").expect("Token is not set"),
         timestamp.to_string(),
         nonce.to_string(),
     ];
